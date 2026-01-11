@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './App.css';
 
 // ============ UTILITY FUNCTIONS ============
@@ -84,9 +84,10 @@ function parseSong(rawText) {
       uppercaseLine.match(
         /^(VERSE|CHORUS|BRIDGE|INTRO|OUTRO|PRE-CHORUS|INTERLUDE|INSTRUMENTAL|TAG|ENDING)\s*\d*$/i
       ) ||
-      uppercaseLine.match(
-        /^\[(VERSE|CHORUS|BRIDGE|INTRO|OUTRO|PRE-CHORUS|INTERLUDE|INSTRUMENTAL|TAG|ENDING)/i
-      ) ||
+      (line.startsWith('[') &&
+        uppercaseLine.match(
+          /^(VERSE|CHORUS|BRIDGE|INTRO|OUTRO|PRE-CHORUS|INTERLUDE|INSTRUMENTAL|TAG|ENDING)/i
+        )) ||
       (line.startsWith('[') && line.endsWith(']')) ||
       (line.match(/^[A-Z\s]+\d*$/) && line.length < 30 && !line.match(/[a-z]/));
 
@@ -362,7 +363,7 @@ Here I am to say that You're my God`);
   const [songs, setSongs] = useState([]);
   const [processedSongs, setProcessedSongs] = useState([]);
 
-  const processSongs = () => {
+  const processSongs = useCallback(() => {
     const songBlocks = rawInput.split(/\n-{3,}\n/);
     const parsedSongs = songBlocks
       .map((block) => block.trim())
@@ -371,7 +372,7 @@ Here I am to say that You're my God`);
 
     setSongs(parsedSongs);
     setProcessedSongs(parsedSongs.map((song) => parseSong(song.text)));
-  };
+  }, [rawInput]);
 
   const copyToClipboard = (text) => {
     navigator.clipboard.writeText(text).then(() => {
@@ -381,7 +382,7 @@ Here I am to say that You're my God`);
 
   useEffect(() => {
     processSongs();
-  }, []);
+  }, [processSongs]);
 
   return (
     <div className="app">
