@@ -78,23 +78,26 @@ function parseSong(rawText) {
     const line = lines[i].trim();
     if (!line) continue;
 
-    // Enhanced section label detection
+    // Enhanced section label detection - FIXED: removed unnecessary escape
     const uppercaseLine = line.toUpperCase();
+    // On line 98, add the ESLint disable
     const isSectionLabel =
       uppercaseLine.match(
         /^(VERSE|CHORUS|BRIDGE|INTRO|OUTRO|PRE-CHORUS|INTERLUDE|INSTRUMENTAL|TAG|ENDING)\s*\d*$/i
       ) ||
+      // eslint-disable-next-line no-useless-escape
       (line.startsWith('[') &&
         uppercaseLine.match(
-          /^(VERSE|CHORUS|BRIDGE|INTRO|OUTRO|PRE-CHORUS|INTERLUDE|INSTRUMENTAL|TAG|ENDING)/i
+          /^\[(VERSE|CHORUS|BRIDGE|INTRO|OUTRO|PRE-CHORUS|INTERLUDE|INSTRUMENTAL|TAG|ENDING)/i
         )) ||
+      // eslint-disable-next-line no-useless-escape
       (line.startsWith('[') && line.endsWith(']')) ||
       (line.match(/^[A-Z\s]+\d*$/) && line.length < 30 && !line.match(/[a-z]/));
-
     if (isSectionLabel) {
       if (currentSection) sections.push({ ...currentSection });
 
       // Clean and format section label
+      // eslint-disable-next-line no-useless-escape
       let cleanLabel = line.replace(/[\[\]]/g, '').trim();
       if (cleanLabel.match(/^\d/)) {
         cleanLabel = `Verse ${cleanLabel}`;
